@@ -56,15 +56,15 @@ is the authoritative reference.
 |------|-------------|
 | `search_lcsh` | Left-anchored LCSH search. Top 6 results include `maySubdivideGeographically`. |
 | `search_lcsh_keyword` | Keyword LCSH search. Top 6 results include `maySubdivideGeographically`. |
-| `search_personal_name` | Personal name search (LCNAF) — individuals only (MARC 100/600/700). |
+| `search_personal_name` | Personal name search (LCNAF) — individuals only. |
 | `search_personal_name_keyword` | Keyword personal name search. |
 | `search_family_name` | Family name search (LCNAF) — dynasties, clans, noble houses, e.g. "Kennedy family". |
 | `search_family_name_keyword` | Keyword family name search. |
-| `search_corporate_name` | Corporate body search (LCNAF) — organizations, institutions, government bodies (MARC 110/610/710). |
+| `search_corporate_name` | Corporate body search (LCNAF) — organizations, institutions, government bodies. |
 | `search_corporate_name_keyword` | Keyword corporate name search. |
-| `search_geographic_name` | Geographic name search (LCNAF) — place names as headings (MARC 151/651/751). |
+| `search_geographic_name` | Geographic name search (LCNAF) — place names as headings. |
 | `search_geographic_name_keyword` | Keyword geographic name search. |
-| `search_meeting_name` | Meeting/conference name search (LCNAF) — conferences, congresses, symposia (MARC 111/611/711). |
+| `search_meeting_name` | Meeting/conference name search (LCNAF) — conferences, congresses, symposia. |
 | `search_meeting_name_keyword` | Keyword meeting/conference name search. |
 | `get_scope_note` | Retrieve the scope note for any LC authority URI. |
 | `get_authority_record` | Retrieve the full authority record via RDF/XML, including biographical data, variant labels, LC classification numbers, and record history. |
