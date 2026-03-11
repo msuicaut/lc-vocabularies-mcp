@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "lc-vocabularies-mcp"
+version = "1.0.0"
+description = "MCP server for searching and retrieving Library of Congress vocabulary data"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "mcp[cli]",
+    "requests",
+]
+
+[project.scripts]
+lc-vocabularies-mcp = "lc_vocabularies_mcp.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
