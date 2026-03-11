@@ -219,6 +219,12 @@ MIT. See [LICENSE](LICENSE).
 
 ---
 
+## Development Note
+
+The code in this project was developed in collaboration with Claude, Anthropic's AI assistant. The design decisions — including tool selection, search protocols, fallback sequences, and the application of LC cataloging practice to the server's behaviour — reflect the author's professional cataloging expertise. Claude handled the implementation of those decisions in Python.
+
+---
+
 ## Acknowledgement
 
 This project was inspired by KL Tang's
