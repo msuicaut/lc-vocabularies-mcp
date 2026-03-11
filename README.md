@@ -128,20 +128,43 @@ On Windows with Anaconda, use Anaconda Prompt and add
 
 ## Claude Desktop Configuration
 
-After installation, add the server to your `claude_desktop_config.json`:
+After installation, add the server to your `claude_desktop_config.json`.
+Claude Desktop uses a restricted PATH that does not include the Python
+bin directory, so the full path to the command is required.
 
+To find your exact path, run the following in Terminal (Mac) or
+Anaconda Prompt (Windows):
+
+- **Mac:** `which lc-vocabularies-mcp`
+- **Windows:** `where lc-vocabularies-mcp`
+
+The examples below are illustrative only — your actual path will differ
+depending on your Python version and installation method.
+
+**Mac (example):**
 ```json
 {
   "mcpServers": {
     "lcvocab": {
-      "command": "lc-vocabularies-mcp"
+      "command": "/Library/Frameworks/Python.framework/Versions/3.13/bin/lc-vocabularies-mcp"
     }
   }
 }
 ```
 
-The `lc-vocabularies-mcp` command is registered automatically when you
-install the package with pip.
+**Windows/Anaconda (example):**
+```json
+{
+  "mcpServers": {
+    "lcvocab": {
+      "command": "C:\\Users\\username\\anaconda3\\Scripts\\lc-vocabularies-mcp.exe"
+    }
+  }
+}
+```
+
+Always replace the path with the actual output of the `which` or `where`
+command on your machine.
 
 **Finding your config file:**
 
@@ -149,7 +172,7 @@ install the package with pip.
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
 After editing the config, quit Claude Desktop completely and reopen it.
-The cataloger tools will be available in your next conversation.
+The lcvocab tools will be available in your next conversation.
 
 ### Verifying the installation
 
