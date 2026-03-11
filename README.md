@@ -110,13 +110,13 @@ because authorized headings include year and location qualifiers.
 ### Install from GitHub
 
 ```bash
-pip install git+https://github.com/YOUR_USERNAME/lc-vocabularies-mcp.git
+pip install git+https://github.com/msuicaut/lc-vocabularies-mcp.git
 ```
 
 ### Install from a local clone
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/lc-vocabularies-mcp.git
+git clone https://github.com/msuicaut/lc-vocabularies-mcp.git
 cd lc-vocabularies-mcp
 pip install -e .
 ```
