@@ -238,7 +238,7 @@ and restart Claude Desktop fully.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+GPLv3. See [LICENSE](LICENSE).
 
 ---
 
