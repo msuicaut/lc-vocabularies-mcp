@@ -29,17 +29,6 @@ When given a bibliographic description (title page, table of contents, publisher
    (topical subject, corporate name subject, geographic name subject, etc.) with URIs and notes only.
 6. Disclose any genre/form terms or other cataloging conventions applied from outside the tools
 
-## Tool Loading
-
-Cataloger tools must be loaded via `tool_search` before use. A single `tool_search` call does not
-always surface all needed tools. If any required tool (e.g. `search_lcsh`, `search_corporate_name`)
-is missing after the first call, run additional `tool_search` calls with varied queries until all
-needed tools are available. Use up to three `tool_search` calls if necessary before beginning
-Round 2 searches.
-
-> **`tool_search` is infrastructure, not a cataloger search.** It must never be counted as a
-> Round 2 search call or used in place of an actual authority lookup.
-
 ## Parallelization and Triage
 
 Searches are slow when run sequentially. To minimize round-trips, apply this three-round structure:
@@ -251,8 +240,6 @@ Example:
 - **Political parties** are LCNAF corporate names, not LCSH topical headings.
 - **Geographic subdivision** — only append `--[Place]` if `maySubdivideGeographically` is
   confirmed `true` for that heading.
-- **`tool_search` is not a cataloger search** — it loads tools and must never be counted as a
-  Round 2 search call or used as a substitute for an authority lookup.
 - **Speculative keyword fallbacks are a major source of unnecessary tool calls and latency.**
   If a concept (e.g. "dissonant heritage," "borderlands," "collective trauma") is specialized
   or emerging terminology unlikely to appear verbatim in LCSH, flag it as a probable gap during
