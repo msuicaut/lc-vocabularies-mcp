@@ -61,9 +61,12 @@ Read the bibliographic description and produce a candidate list, grouped by type
     in one parallel group rather than retrieved one at a time.
 - **Corporate/geographic/meeting names to search:** only if the work is substantially about an
   institution, place, or event.
-- **Topical headings to search:** identify 4–8 core concepts. Prefer concrete, well-established
-  LCSH strings over speculative or compound phrases. Do not search the same concept twice with
-  minor wording variation in the same round.
+- **Topical headings to search:** identify 4–8 core concepts, sized to fit the 6–10 heading
+  budget *before any searches begin*. The budget is a hard constraint on the Round 1 candidate
+  list, not a post-hoc culling instruction — if the candidate list exceeds budget at triage,
+  drop the weakest candidates now. Prefer concrete, well-established LCSH strings over
+  speculative or compound phrases. Do not search the same concept twice with minor wording
+  variation in the same round.
 - **Scope notes needed:** note any pairs of confirmed headings where the labels alone do not
   resolve which applies — retrieve scope notes for these in Round 3 only, never pre-emptively.
 
@@ -250,3 +253,15 @@ Example:
   confirmed `true` for that heading.
 - **`tool_search` is not a cataloger search** — it loads tools and must never be counted as a
   Round 2 search call or used as a substitute for an authority lookup.
+- **Speculative keyword fallbacks are a major source of unnecessary tool calls and latency.**
+  If a concept (e.g. "dissonant heritage," "borderlands," "collective trauma") is specialized
+  or emerging terminology unlikely to appear verbatim in LCSH, flag it as a probable gap during
+  Round 1 triage and do not search for it at all. Two failed search calls per gap add up quickly
+  across a session. Only search for a concept if there is a plausible, concrete LCSH string for
+  it — not merely because the concept is present in the work.
+- **Recent conflict and event headings** may use authorized forms that bear no resemblance to
+  intuitive keyword queries. For example, the heading for the 2022 Russian invasion of Ukraine is
+  established as *Russian Invasion of Ukraine, 2022* — keyword searches on "Russia Ukraine war",
+  "Russo-Ukrainian War", or similar strings return nothing. When both left-anchored and keyword
+  searches fail for a well-known recent event, use `lcvocab:get_authority_record` with a URI
+  obtained directly from id.loc.gov rather than concluding the heading does not exist.
