@@ -50,7 +50,15 @@ Read the bibliographic description and produce a candidate list, grouped by type
 
 - **Personal and family names to search (as subjects):** only when the work is substantially
   about a specific person or family. Skip persons unlikely to be established in LCNAF (obscure
-  historical figures, etc.) — note as probable NACO gaps rather than wasting a search call.
+  historical figures, recent thesis authors, etc.) — note as probable NACO gaps rather than
+  wasting a search call.
+  - If a personal name on the source includes a middle name or initial, list it twice as separate
+    Round 2 candidates: once as the full form (e.g. `Westwood, Jean Miles`) and once as
+    surname + forename only (e.g. `Westwood, Jean`). Both fire in Round 2 simultaneously — do
+    not wait for the full form to fail before queuing the shorter form.
+  - If a name is predictably common (e.g. a generic surname with a common forename), flag it
+    during triage so that all `get_authority_record` calls needed in Round 3 are batched together
+    in one parallel group rather than retrieved one at a time.
 - **Corporate/geographic/meeting names to search:** only if the work is substantially about an
   institution, place, or event.
 - **Topical headings to search:** identify 4–8 core concepts. Prefer concrete, well-established
@@ -66,11 +74,19 @@ Fire all Round 1 candidates simultaneously in a single batch. Use left-anchored 
 if the left-anchored form is clearly unsuitable (e.g. meeting names, or a concept unlikely to
 start with the first word of the heading).
 
+For personal names with middle names or initials: fire both the full form and the
+surname+forename form in the same Round 2 batch. The keyword fallback (step 3 of the personal
+name protocol) remains a Round 3 fallback only if both forms miss.
+
 ### Round 3 — Targeted follow-up only
 
 Run keyword fallbacks, additional searches, scope note retrievals, and authority record
 confirmations only for candidates that actually need them based on Round 2 results. Do not run
 fallbacks pre-emptively.
+
+When multiple `get_authority_record` calls are needed (e.g. to disambiguate a common name that
+returned several candidates), batch all of them into one parallel call group rather than
+retrieving records one at a time.
 
 ---
 
@@ -108,14 +124,16 @@ heading. Always follow this fallback sequence — do not skip steps.
 **Step 1:** Search the full name as it appears on the source.
 `lcvocab:search_personal_name` → `Westwood, Jean Miles`
 
-**Step 2:** If no results, retry without middle name or initials.
+**Step 2:** If the name includes a middle name or initial, fire this simultaneously with Step 1
+in Round 2 — do not wait for Step 1 to fail first. Search surname + forename only.
 `lcvocab:search_personal_name` → `Westwood, Jean`
 
-**Step 3:** If still no results, keyword search on surname + forename only.
+**Step 3:** If both Step 1 and Step 2 return no results, keyword search on surname + forename.
 `lcvocab:search_personal_name_keyword` → `Westwood Jean`
 
 **Step 4:** If multiple candidates or ambiguous results, retrieve the full authority record to
-confirm by checking dates, variant names, and source citations.
+confirm by checking dates, variant names, and source citations. If multiple records need
+checking, batch all `get_authority_record` calls in one parallel group.
 `lcvocab:get_authority_record` → `http://id.loc.gov/authorities/names/n92093273`
 
 **Step 5:** Only after all four steps fail should you conclude no authority record exists.
@@ -123,13 +141,14 @@ confirm by checking dates, variant names, and source citations.
 > **Why this matters:** The authorized form of a name frequently omits middle names present on the
 > source. A left-anchored search on the fuller form will miss the record entirely without this
 > fallback sequence. Example: *Westwood, Jean Miles* (source) → authorized heading
-> *Westwood, Jean, 1923-1997*.
+> *Westwood, Jean, 1923-1997*. Firing Steps 1 and 2 in parallel eliminates a sequential
+> round-trip in the common case where the full form misses.
 
 > **Ambiguous results:** When a name search returns multiple plausible candidates (e.g. common
 > surnames, relatives sharing a name), retrieve authority records for the 2–3 most plausible
-> candidates and compare dates, occupations, fields of activity, and source citations. Do not
-> silently select one. Flag the ambiguity explicitly and ask the cataloger to confirm before
-> proceeding.
+> candidates and compare dates, occupations, fields of activity, and source citations. Batch all
+> these retrievals into one parallel call group. Do not silently select one candidate. Flag the
+> ambiguity explicitly and ask the cataloger to confirm before proceeding.
 
 ---
 
@@ -221,11 +240,11 @@ Example:
 - **Creators vs. subjects:** Do not search for or report name authority headings for the work's
   own authors, editors, translators, or other contributors. Personal, family, and corporate name
   tools are used only when those entities are the *subject* of the work.
-- **Middle names on sources** are frequently absent from authorized headings — always follow
-  the full personal name fallback protocol before concluding no record exists.
-- **Ambiguous personal name results** — when multiple candidates share a name, retrieve authority
-  records for the most plausible candidates and flag ambiguity to the cataloger. Do not silently
-  select one.
+- **Middle names on sources** are frequently absent from authorized headings — fire both the full
+  form and the surname+forename form in Round 2 simultaneously rather than waiting for one to fail.
+- **Ambiguous personal name results** — when multiple candidates share a name, batch all
+  `get_authority_record` calls into one parallel group, then flag ambiguity to the cataloger.
+  Do not silently select one.
 - **Political parties** are LCNAF corporate names, not LCSH topical headings.
 - **Geographic subdivision** — only append `--[Place]` if `maySubdivideGeographically` is
   confirmed `true` for that heading.
