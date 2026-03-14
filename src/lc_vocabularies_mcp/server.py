@@ -107,53 +107,113 @@ def _call_suggest2(url: str, params: dict) -> dict:
 # Limit of 6 reflects H 180's general maximum of six subject headings per work.
 # ---------------------------------------------------------------------------
 
-def _check_geographic_subdivision(uri: str, headers: dict) -> bool | None:
+def _get_mads_collections(uri: str, headers: dict) -> dict:
     """
-    Fetch the .madsrdf.json record for a subject heading URI and return whether
-    the heading is a member of collection_SubdivideGeographically.
-    Returns True, False, or None if the check could not be completed.
+    Fetch the .madsrdf.json record for a subject heading URI and return a dict
+    with two keys:
+
+      - "maySubdivideGeographically": True, False, or None
+            True  — the heading is a member of collection_SubdivideGeographically
+            False — the record was found but the heading is not a member
+            None  — the check could not be completed (network error, etc.)
+
+      - "collectionMembership": list of str (may be empty)
+            Human-readable labels for any MADS collections the heading belongs
+            to *other* than SubdivideGeographically (e.g.
+            "LCSH Collection - Subdivisions", "Pattern Heading - Ethnic Groups").
+            Labels are derived from the collection @id by stripping the
+            id.loc.gov base path; the raw URI fragment is used as a fallback
+            when no cleaner label can be extracted.
 
     Uses https:// for the HTTP request (id.loc.gov redirects http:// to https://)
     but matches against both http:// and https:// forms of the node @id, since
     the JSON-LD graph may use either form depending on the record.
     """
     MADS_COLLECTION = "http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection"
+
+    # Map from id.loc.gov collection URI fragments to human-readable labels.
+    # Extend this dict as new collection types are encountered.
+    COLLECTION_LABELS = {
+        "collection_Subdivisions":       "LCSH Collection - Subdivisions",
+        "collection_PatternHeading":      "Pattern Heading",
+        "collection_EthnicGroups":        "Pattern Heading - Ethnic Groups",
+        "collection_LegalTopics":         "Pattern Heading - Legal Topics",
+        "collection_MusicalInstruments":  "Pattern Heading - Musical Instruments",
+        "collection_Literatures":         "Pattern Heading - Literatures",
+        "collection_Languages":           "Pattern Heading - Languages",
+        "collection_Religions":           "Pattern Heading - Religions",
+        "collection_Wars":                "Pattern Heading - Wars",
+    }
+
     try:
         canonical = uri.rstrip("/")
         safe_uri = canonical.replace("http://", "https://")
         response = requests.get(safe_uri + ".madsrdf.json", headers=headers, timeout=10)
         response.raise_for_status()
         data = response.json()
-        # The response is a JSON-LD graph — a list of nodes.
+
+        if not isinstance(data, list):
+            return {"maySubdivideGeographically": None, "collectionMembership": []}
+
         # Find the main concept node whose @id matches the canonical URI
         # in either http:// or https:// form.
-        if isinstance(data, list):
-            for node in data:
-                node_id = node.get("@id", "").rstrip("/")
-                if isinstance(node, dict) and (node_id == canonical or node_id == safe_uri):
-                    for entry in node.get(MADS_COLLECTION, []):
-                        if "SubdivideGeographically" in entry.get("@id", ""):
-                            return True
-                    return False
-        return None
+        for node in data:
+            node_id = node.get("@id", "").rstrip("/")
+            if not (isinstance(node, dict) and (node_id == canonical or node_id == safe_uri)):
+                continue
+
+            may_subdivide = False
+            other_collections = []
+
+            for entry in node.get(MADS_COLLECTION, []):
+                coll_id = entry.get("@id", "")
+                if "SubdivideGeographically" in coll_id:
+                    may_subdivide = True
+                else:
+                    # Derive a human-readable label from the URI fragment.
+                    fragment = coll_id.rstrip("/").split("/")[-1]
+                    label = COLLECTION_LABELS.get(fragment, fragment)
+                    if label and label not in other_collections:
+                        other_collections.append(label)
+
+            return {
+                "maySubdivideGeographically": may_subdivide,
+                "collectionMembership": other_collections,
+            }
+
+        # Node found in graph but no matching concept node — record exists
+        # but collection membership could not be determined.
+        return {"maySubdivideGeographically": None, "collectionMembership": []}
+
     except Exception:
-        return None
+        return {"maySubdivideGeographically": None, "collectionMembership": []}
 
 
 def _enrich_with_geographic(results: list, headers: dict) -> list:
     """
-    For the top 6 results, add a maySubdivideGeographically field by calling
-    _check_geographic_subdivision on each URI.  Results beyond the top 6 are
-    returned as-is without enrichment.
+    For the top 6 results, add enrichment fields derived from the MADS/RDF
+    collection memberships of each heading:
 
+      - maySubdivideGeographically (True/False/None) — always added for top 6
+      - collectionMembership (list of str) — added only when non-empty;
+        contains human-readable labels for any MADS collections the heading
+        belongs to other than SubdivideGeographically (e.g.
+        "LCSH Collection - Subdivisions", "Pattern Heading - Ethnic Groups").
+        Presence of this field signals that the heading is not a standard
+        topical main heading and should not be used as a standalone subject.
+
+    Results beyond the top 6 are returned as-is without enrichment.
     The limit of 6 reflects H 180's general maximum of six subject headings
     per work, ensuring enrichment covers all headings likely to be assigned.
     """
     enriched = []
     for i, result in enumerate(results):
         if i < 6 and result.get("uri"):
-            may_subdivide = _check_geographic_subdivision(result["uri"], headers)
-            enriched.append({**result, "maySubdivideGeographically": may_subdivide})
+            info = _get_mads_collections(result["uri"], headers)
+            entry = {**result, "maySubdivideGeographically": info["maySubdivideGeographically"]}
+            if info["collectionMembership"]:
+                entry["collectionMembership"] = info["collectionMembership"]
+            enriched.append(entry)
         else:
             enriched.append(result)
     return enriched
@@ -169,9 +229,17 @@ def search_lcsh(query: str) -> dict:
     Search Library of Congress Subject Headings (LCSH) by left-anchored
     string match using the public suggest2 API.
     Returns a dictionary with the top results. The top 6 results
-    automatically include a maySubdivideGeographically field (True/False/None)
-    derived from the MADS/RDF authority record, reflecting the general maximum
-    of six subject headings per work per H 180.
+    automatically include:
+      - maySubdivideGeographically (True/False/None): whether the heading
+        permits geographic subdivision, derived from the MADS/RDF authority
+        record. Reflects the general maximum of six subject headings per
+        work per H 180.
+      - collectionMembership (list of str, omitted when empty): human-readable
+        labels for any MADS collections the heading belongs to other than
+        SubdivideGeographically — e.g. "LCSH Collection - Subdivisions" or
+        "Pattern Heading - Ethnic Groups". A non-empty value signals that the
+        heading is a subdivision or pattern heading, not a standard topical
+        main heading, and should not be used as a standalone subject heading.
     """
     headers = {"User-Agent": "lc vocabularies mcp server/1.0 (contact: ms.chan@utoronto.ca)"}
     response = _call_suggest2(
@@ -190,9 +258,17 @@ def search_lcsh_keyword(query: str) -> dict:
     the public suggest2 API.  Use this when a left-anchored search returns
     no results or the heading may not start with the query term.
     Returns a dictionary with the top results. The top 6 results
-    automatically include a maySubdivideGeographically field (True/False/None)
-    derived from the MADS/RDF authority record, reflecting the general maximum
-    of six subject headings per work per H 180.
+    automatically include:
+      - maySubdivideGeographically (True/False/None): whether the heading
+        permits geographic subdivision, derived from the MADS/RDF authority
+        record. Reflects the general maximum of six subject headings per
+        work per H 180.
+      - collectionMembership (list of str, omitted when empty): human-readable
+        labels for any MADS collections the heading belongs to other than
+        SubdivideGeographically — e.g. "LCSH Collection - Subdivisions" or
+        "Pattern Heading - Ethnic Groups". A non-empty value signals that the
+        heading is a subdivision or pattern heading, not a standard topical
+        main heading, and should not be used as a standalone subject heading.
     """
     headers = {"User-Agent": "lc vocabularies mcp server/1.0 (contact: ms.chan@utoronto.ca)"}
     response = _call_suggest2(
