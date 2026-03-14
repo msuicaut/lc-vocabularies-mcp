@@ -1,8 +1,6 @@
 # LC Vocabularies MCP
 
-An MCP (Model Context Protocol) server for searching and retrieving
-linked data vocabulary published by the Library of Congress, built for
-use with AI-assisted cataloging workflows.
+"An experimental MCP (Model Context Protocol) server connecting Claude to the Library of Congress Linked Data APIs for LCSH and LCNAF authority lookups, developed to investigate the potential of large language models in subject analysis and authority control.
 
 This project was inspired by and built with familiarity with
 [cataloger-mcp](https://github.com/kltng/cataloger-mcp) by KL Tang.
@@ -250,6 +248,10 @@ The code in this project was developed in collaboration with Claude, Anthropic's
 
 ## Acknowledgement
 
+This project makes use of the Library of Congress Linked Data Service (id.loc.gov). The Library of Congress provides open access to its authority files, including LCSH and LCNAF, through public linked data APIs.
+
 This project was inspired by KL Tang's
 [cataloger-mcp](https://github.com/kltng/cataloger-mcp). LC Vocabularies
-MCP is a substantial extension for use in professional cataloging workflows.
+MCP is a substantial extension for potential use in professional cataloging workflows.
+
+
