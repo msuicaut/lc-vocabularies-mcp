@@ -19,7 +19,7 @@ import requests
 import traceback
 import xml.etree.ElementTree as ET
 
-mcp = FastMCP("cataloger mcp server")
+mcp = FastMCP("lc vocabularies mcp server")
 
 # ---------------------------------------------------------------------------
 # Internal helper — shared response-parsing logic for all suggest2 endpoints.
@@ -32,7 +32,7 @@ def _call_suggest2(url: str, params: dict) -> dict:
     normalised dict with a 'results' list of {label, uri} pairs, or an
     'error' key if something went wrong.
     """
-    headers = {"User-Agent": "cataloger mcp server/1.0 (contact: your-email@example.com)"}
+    headers = {"User-Agent": "lc vocabularies mcp server/1.0 (contact: ms.chan@utoronto.ca)"}
     try:
         response = requests.get(url, params=params, headers=headers, timeout=10)
         response.raise_for_status()
@@ -173,7 +173,7 @@ def search_lcsh(query: str) -> dict:
     derived from the MADS/RDF authority record, reflecting the general maximum
     of six subject headings per work per H 180.
     """
-    headers = {"User-Agent": "cataloger mcp server/1.0 (contact: your-email@example.com)"}
+    headers = {"User-Agent": "lc vocabularies mcp server/1.0 (contact: ms.chan@utoronto.ca)"}
     response = _call_suggest2(
         url="https://id.loc.gov/authorities/subjects/suggest2",
         params={"q": query, "count": 25},
@@ -194,7 +194,7 @@ def search_lcsh_keyword(query: str) -> dict:
     derived from the MADS/RDF authority record, reflecting the general maximum
     of six subject headings per work per H 180.
     """
-    headers = {"User-Agent": "cataloger mcp server/1.0 (contact: your-email@example.com)"}
+    headers = {"User-Agent": "lc vocabularies mcp server/1.0 (contact: ms.chan@utoronto.ca)"}
     response = _call_suggest2(
         url="https://id.loc.gov/authorities/subjects/suggest2",
         params={"q": query, "searchtype": "keyword", "count": 50},
@@ -420,7 +420,7 @@ def get_scope_note(uri: str) -> dict:
     # We find the node whose @id matches the canonical URI, then extract
     # skos:note (used by LC) and skos:scopeNote (the formal SKOS property).
     url = canonical + ".skos.json"
-    headers = {"User-Agent": "cataloger mcp server/1.0 (contact: your-email@example.com)"}
+    headers = {"User-Agent": "lc vocabularies mcp server/1.0 (contact: ms.chan@utoronto.ca)"}
 
     try:
         response = requests.get(url, headers=headers, timeout=10)
@@ -575,7 +575,7 @@ def get_authority_record(uri: str) -> dict:
             "uri": canonical,
         }
 
-    headers = {"User-Agent": "cataloger mcp server/1.0 (contact: your-email@example.com)"}
+    headers = {"User-Agent": "lc vocabularies mcp server/1.0 (contact: ms.chan@utoronto.ca)"}
 
     try:
         response = requests.get(safe_canonical + ".rdf", headers=headers, timeout=10)
