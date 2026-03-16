@@ -242,9 +242,9 @@ The code in this project was developed in collaboration with Claude, Anthropic's
 
 ---
 
-## Acknowledgement
+## Acknowledgements
 
-This project makes use of the Library of Congress Linked Data Service (id.loc.gov). The Library of Congress provides open access to its authority files, including LCSH and LCNAF, through public linked data APIs.
+This project makes use of the Library of Congress Linked Data Service (id.loc.gov). The Library of Congress provides open access to its authority files through public linked data APIs.
 
 This project was inspired by KL Tang's
 [cataloger-mcp](https://github.com/kltng/cataloger-mcp). LC Vocabularies
