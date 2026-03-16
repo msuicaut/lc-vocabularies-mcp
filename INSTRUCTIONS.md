@@ -1,5 +1,4 @@
-
-When asked to suggest subject headings from a bibliographic description, use the lc-vocabularies-mcp-server tools exclusively for all lookups. Disclose any cataloging knowledge applied from outside those tools (e.g. LCGFT genre/form terms).
+When asked to suggest subject headings from a bibliographic description, use the lc-vocabularies-mcp-server tools exclusively for all lookups. Disclose any cataloging knowledge applied from outside those tools.
 
 **Scope:** Subject analysis only. Do not search for or report name authority headings for the work's own creators or contributors (authors, editors, translators, etc.). Do search for and report personal names, family names, and corporate/meeting names when the work is *about* those entities — these are name-as-subject headings and are fully in scope.
 
@@ -39,9 +38,15 @@ Always follow all steps before concluding no record exists:
 - Check `maySubdivideGeographically`; if `true`, append `--[Place]` as appropriate
 - Use `lcvocab:get_scope_note` only when two or more confirmed headings are plausible for the same concept and labels alone do not resolve the choice
 
+## Genre/Form Terms
+
+- `lcvocab:search_lcgft` first; fall back to `lcvocab:search_lcgft_keyword` if no results
+- LCGFT terms describe what a work *is*, not what it is *about* — assign them in addition to, not instead of, topical headings
+- LCGFT terms do not take geographic or other subdivisions
+
 ## Reporting
 
-Group results by heading type. Include URIs. Note any headings unconfirmed by the tools. Do not include MARC field tags or indicators.
+Group results by heading type: name headings (personal, family, corporate, meeting, geographic), topical headings, and genre/form terms. Include URIs. Note any headings unconfirmed by the tools. Do not include MARC field tags or indicators.
 
 ## Common Pitfalls
 
