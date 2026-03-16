@@ -1,18 +1,12 @@
 # LC Vocabularies MCP
 
-"An experimental MCP (Model Context Protocol) server connecting Claude to the Library of Congress Linked Data APIs for LCSH and LCNAF authority lookups, developed to investigate the potential of large language models in subject analysis and authority control.
+"An experimental MCP (Model Context Protocol) server connecting Claude to the Library of Congress Linked Data APIs for LCSH, LCNAF, and LCGFT authority lookups, developed to investigate the potential of large language models in subject analysis and authority control.
 
 This project was inspired by and built with familiarity with
 [cataloger-mcp](https://github.com/kltng/cataloger-mcp) by KL Tang.
 The design decisions and enhancements in this version reflect
 professional cataloging expertise and knowledge of the LC Subject
 Headings Manual.
-
-> **Note:** This project is experimental. The current version focuses
-> on querying Library of Congress Subject Headings (LCSH) and LC Name
-> Authority File (LCNAF) linked data. Support for additional LC
-> vocabularies such as the LC Genre/Form Terms (LCGFT) is being
-> considered for future development.
 
 ---
 
@@ -43,8 +37,8 @@ structured data Claude can reason about.
 If you are approaching this as a developer without a cataloging background,
 the tool descriptions and parameter names reflect cataloging conventions
 that may benefit from some context — the
-[LC Subject Headings Manual](https://www.loc.gov/aba/publications/FreeSHM/freeshm.html)
-is the authoritative reference.
+[LC Subject Headings Manual (SHM) ](https://www.loc.gov/aba/publications/FreeSHM/freeshm.html), [LC Descriptive Cataloging Manual (DCM) Sections Z1 and Z12](https://www.loc.gov/aba/publications/FreeDCM/freedcm.html) and [LC Genre/Form Terms Manual](https://www.loc.gov/aba/publications/FreeLCGFT/freelcgft.html)
+are the authoritative references.
 
 ---
 
@@ -54,6 +48,8 @@ is the authoritative reference.
 |------|-------------|
 | `search_lcsh` | Left-anchored LCSH search. Top 6 results include `maySubdivideGeographically`. |
 | `search_lcsh_keyword` | Keyword LCSH search. Top 6 results include `maySubdivideGeographically`. |
+| `search_lcgft` | Left-anchored LCGFT search — genre and form terms. |
+| `search_lcgft_keyword` | Keyword LCGFT search. |
 | `search_personal_name` | Personal name search (LCNAF) — individuals only. |
 | `search_personal_name_keyword` | Keyword personal name search. |
 | `search_family_name` | Family name search (LCNAF) — dynasties, clans, noble houses, e.g. "Kennedy family". |
@@ -175,7 +171,7 @@ The lcvocab tools will be available in your next conversation.
 ### Verifying the installation
 
 Once Claude Desktop is open, ask: *"What cataloger tools do you have
-available?"* — you should see all fourteen tools listed.
+available?"* — you should see all sixteen tools listed.
 
 ---
 
