@@ -447,6 +447,41 @@ def search_family_name_keyword(query: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# LCGFT tools
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def search_lcgft(query: str) -> dict:
+    """
+    Search Library of Congress Genre/Form Terms (LCGFT) by left-anchored
+    string match using the public suggest2 API.
+    Use this for genre and form terms assigned to bibliographic records
+    (MARC 655, second indicator 7, $2 lcgft).
+    Returns a dictionary with the top results.
+    """
+    return _call_suggest2(
+        url="https://id.loc.gov/authorities/genreForms/suggest2",
+        params={"q": query, "count": 25},
+    )
+
+
+@mcp.tool()
+def search_lcgft_keyword(query: str) -> dict:
+    """
+    Search Library of Congress Genre/Form Terms (LCGFT) by keyword using
+    the public suggest2 API. Use this when a left-anchored search returns
+    no results or the term may not start with the query string.
+    Use this for genre and form terms assigned to bibliographic records
+    (MARC 655, second indicator 7, $2 lcgft).
+    Returns a dictionary with the top results.
+    """
+    return _call_suggest2(
+        url="https://id.loc.gov/authorities/genreForms/suggest2",
+        params={"q": query, "searchtype": "keyword", "count": 50},
+    )
+
+
+# ---------------------------------------------------------------------------
 # Scope note retrieval
 # ---------------------------------------------------------------------------
 
@@ -1010,6 +1045,16 @@ def lcnaf_family_resource(query: str) -> dict:
 @mcp.resource("lcnaf://family/keyword/{query}")
 def lcnaf_family_keyword_resource(query: str) -> dict:
     return search_family_name_keyword(query)
+
+
+@mcp.resource("lcgft://search/{query}")
+def lcgft_resource(query: str) -> dict:
+    return search_lcgft(query)
+
+
+@mcp.resource("lcgft://keyword/{query}")
+def lcgft_keyword_resource(query: str) -> dict:
+    return search_lcgft_keyword(query)
 
 
 # ---------------------------------------------------------------------------
